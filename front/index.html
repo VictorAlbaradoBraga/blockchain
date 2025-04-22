@@ -1,65 +1,12 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blockchain Certificados</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-
-  <!-- Navbar -->
-  <nav class="bg-white shadow-md p-4 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-blue-600">CertificaChain</h1>
-    <div class="space-x-4">
-      <button onclick="showPage('login')" class="text-blue-600 hover:text-blue-800 font-semibold">Login</button>
-      <button onclick="showPage('upload')" class="text-blue-600 hover:text-blue-800 font-semibold">Upload</button>
-      <button onclick="showPage('list')" class="text-blue-600 hover:text-blue-800 font-semibold">Certificados</button>
-      <button onclick="showPage('mycerts')" class="text-blue-600 hover:text-blue-800 font-semibold">Meus Certificados</button>
-    </div>
-  </nav>
-
-  <!-- Páginas -->
-  <main class="flex-1 p-6">
-
-    <!-- Página Login -->
-    <section id="login" class="page">
-      <h2 class="text-xl font-semibold mb-4">Login ou Cadastro</h2>
-      <div class="space-y-4">
-        <input id="email" type="email" placeholder="Email" class="border border-gray-300 rounded px-4 py-2 w-full">
-        <input id="password" type="password" placeholder="Senha" class="border border-gray-300 rounded px-4 py-2 w-full">
-        <div class="space-x-2">
-          <button onclick="register()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Cadastrar</button>
-          <button onclick="login()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Entrar</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Página Upload -->
-    <section id="upload" class="page hidden">
-      <h2 class="text-xl font-semibold mb-4">Upload de Arquivo</h2>
-      <div class="space-y-4">
-        <input id="file" type="file" class="border border-gray-300 rounded px-4 py-2 w-full">
-        <input id="filename" type="text" placeholder="Nome da obra" class="border border-gray-300 rounded px-4 py-2 w-full">
-        <button onclick="uploadFile()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Enviar</button>
-      </div>
-    </section>
-
-    <!-- Página Listar Certificados -->
-    <section id="list" class="page hidden">
-      <h2 class="text-xl font-semibold mb-4">Todos os Certificados</h2>
-      <div id="certList" class="space-y-4"></div>
-    </section>
-
-    <!-- Página Meus Certificados -->
-    <section id="mycerts" class="page hidden">
-      <h2 class="text-xl font-semibold mb-4">Meus Certificados</h2>
-      <div id="myCertsList" class="space-y-4"></div>
-    </section>
-
-  </main>
-
-  <script src="/static/script.js" defer></script>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BlockChain</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

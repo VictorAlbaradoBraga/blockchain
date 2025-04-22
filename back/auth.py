@@ -1,41 +1,52 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+import uuid
+from fastapi import APIRouter, HTTPException, Header, Depends
+from sqlalchemy.orm import Session
 from back.utils import hash_password, verify_password
-
-# Simulando um "banco de usuários" na memória
-# (depois podemos salvar na blockchain também)
-users_db = {}
+from back.models import UserRegister, UserLogin
+from back.database import SessionLocal, User
 
 router = APIRouter()
 
-class UserRegister(BaseModel):
-    email: str
-    password: str
-    name: str
-    creator_type: str  # ilustrador, designer, etc.
+sessions = {}  # Simula sessões: token -> email
 
-class UserLogin(BaseModel):
-    email: str
-    password: str
+# Dependência para pegar a sessão do banco
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @router.post("/register")
-def register(user: UserRegister):
-    if user.email in users_db:
+def register(user: UserRegister, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.email == user.email).first()
+    if existing_user:
         raise HTTPException(status_code=400, detail="E-mail já registrado.")
 
-    users_db[user.email] = {
-        "name": user.name,
-        "creator_type": user.creator_type,
-        "password": hash_password(user.password)
-    }
+    new_user = User(
+        email=user.email,
+        name=user.name,
+        creator_type=user.creator_type,
+        password=hash_password(user.password)
+    )
+    db.add(new_user)
+    db.commit()
 
     return {"message": "Usuário registrado com sucesso."}
 
 @router.post("/login")
-def login(user: UserLogin):
-    stored_user = users_db.get(user.email)
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    stored_user = db.query(User).filter(User.email == user.email).first()
 
-    if not stored_user or not verify_password(user.password, stored_user["password"]):
+    if not stored_user or not verify_password(user.password, stored_user.password):
         raise HTTPException(status_code=401, detail="E-mail ou senha inválidos.")
 
-    return {"message": "Login realizado com sucesso."}
+    token = str(uuid.uuid4())  # Gera token aleatório
+    sessions[token] = user.email
+
+    return {"token": token, "message": "Login realizado com sucesso."}
+
+def require_auth(token: str = Header(...)):
+    if token not in sessions:
+        raise HTTPException(status_code=401, detail="Token inválido ou expirado.")
+    return sessions[token]

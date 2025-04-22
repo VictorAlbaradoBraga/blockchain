@@ -1,17 +1,37 @@
 from pydantic import BaseModel
 
-class UserCreate(BaseModel):
-    username: str
+# 🔒 Models de Autenticação
+class UserRegister(BaseModel):
+    email: str
     password: str
+    name: str
+    creator_type: str
 
 class UserLogin(BaseModel):
-    username: str
+    email: str
     password: str
 
-class FileUpload(BaseModel):
-    filename: str
-    content: str  # Pode ser Base64, ou link, ou referência
+# 📂 Models de Upload de Produções
+class ProductionCreate(BaseModel):
+    title: str
+    description: str
 
+class Production(BaseModel):
+    id: str
+    creator_email: str
+    file_hash: str
+    title: str
+    description: str
+    filename: str
+    timestamp: int
+    file_type: str
+
+    # Converte o modelo SQLAlchemy para Pydantic
+    class Config:
+        orm_mode = True
+
+# 📜 Models de Certificados
 class CertificateRequest(BaseModel):
-    username: str
-    file_id: str  # Ou o que você quiser associar
+    creator_email: str
+    filename: str
+    file_hash: str
