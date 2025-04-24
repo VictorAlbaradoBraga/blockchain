@@ -32,7 +32,11 @@ export default function ProductionsList() {
     <section className="max-w-6xl mx-auto p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
       {productions.map(prod => (
         <Link key={prod.id} to={`/producao/${prod.id}`} className="bg-white rounded-xl shadow-md overflow-hidden hover:scale-105 transition-transform">
-          <img src={`https://via.placeholder.com/300x400?text=${encodeURIComponent(prod.title)}`} alt={prod.title} className="w-full h-48 object-cover" />
+          <img
+            src={prod.preview_url} // Usando o preview_url para exibir a imagem ou ícone
+            alt={prod.title}
+            className="w-full h-48 object-cover"
+          />
           <div className="p-4">
             <h3 className="font-bold text-lg">{prod.title}</h3>
             <p className="text-gray-500 text-sm mt-1">{prod.description.slice(0, 60)}...</p>

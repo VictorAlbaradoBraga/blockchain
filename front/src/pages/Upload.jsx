@@ -24,8 +24,8 @@ export default function Upload() {
     formData.append("description", description); // Envia a descrição
 
     try {
-      console.log(formData)
-      const response = await fetch(`${API_URL}/upload`, {
+      console.log("oi")
+      const response = await fetch(`${API_URL}/upload/`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`

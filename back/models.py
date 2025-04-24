@@ -17,7 +17,7 @@ class ProductionCreate(BaseModel):
     description: str
 
 class Production(BaseModel):
-    id: str
+    id: int  # Alterado para Integer
     creator_email: str
     file_hash: str
     title: str
@@ -25,6 +25,8 @@ class Production(BaseModel):
     filename: str
     timestamp: int
     file_type: str
+    file_url: str  # URL do arquivo
+    preview_url: str  # URL da prévia do arquivo
 
     # Converte o modelo SQLAlchemy para Pydantic
     class Config:

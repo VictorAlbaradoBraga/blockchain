@@ -20,7 +20,7 @@ class User(Base):
 class Production(Base):
     __tablename__ = "productions"
     
-    id = Column(String, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)  # Alterado para Integer e autoincrement
     creator_email = Column(String)
     file_hash = Column(String)
     title = Column(String)
@@ -28,6 +28,9 @@ class Production(Base):
     filename = Column(String)
     timestamp = Column(Integer)
     file_type = Column(String)
+    file_url = Column(String)
+    preview_url = Column(String)
+
 
 # Cria o banco se não existir
 Base.metadata.create_all(bind=engine)

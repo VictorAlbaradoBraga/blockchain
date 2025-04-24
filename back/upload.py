@@ -6,7 +6,6 @@ from back.utils import generate_file_hash
 from back.auth import require_auth, sessions
 from back.database import SessionLocal, Production
 import os
-import uuid
 import time
 
 router = APIRouter()
@@ -24,14 +23,24 @@ def get_db():
     finally:
         db.close()
 
+from fastapi import Request
+
 @router.post("/")
 async def upload_file(
+    request: Request,
     file: UploadFile = File(...),
     title: str = Form(...),
     description: str = Form(...),
-    token: str = Header(...),
     db: Session = Depends(get_db)
 ):
+    print("🔔 Rota de upload foi chamada!")
+
+    # Extrair o token do header Authorization
+    auth_header = request.headers.get("authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Token ausente ou inválido")
+
+    token = auth_header.split(" ")[1]
     email = require_auth(token)
 
     # Verifica se o arquivo foi enviado
@@ -51,13 +60,14 @@ async def upload_file(
     ext = os.path.splitext(file.filename)[1].lower()
     if ext in [".png", ".jpg", ".jpeg", ".gif"]:
         file_type = "image"
+        # URL para visualização da imagem
+        preview_url = f"/uploads/{file.filename}"
     elif ext == ".pdf":
         file_type = "pdf"
+        # URL para visualização do PDF (pode ser um ícone ou algo que indique ser um PDF)
+        preview_url = "/asset/pdf.png"  # Ícone para PDF
     else:
         raise HTTPException(status_code=400, detail="Tipo de arquivo não suportado.")
-
-    # Cria um novo ID para a produção
-    production_id = str(uuid.uuid4())
 
     # Cria a nova produção no banco de dados
     new_production = Production(
@@ -67,18 +77,21 @@ async def upload_file(
         description=description,
         filename=file.filename,
         timestamp=int(time.time()),
-        file_type=file_type
+        file_type=file_type,
+        file_url=f"/uploads/{file.filename}",  # URL do arquivo
+        preview_url=preview_url  # URL da imagem de visualização
     )
 
     db.add(new_production)
     db.commit()
+    db.refresh(new_production)  # Atualiza o objeto com os dados do banco, incluindo o ID gerado
 
     # Cria a transação para o blockchain
     transaction = Transaction(
         sender=email,
         recipient="blockchain_register",
         data={
-            "id": production_id,
+            "id": new_production.id,  # Usando o ID gerado pelo banco
             "creator_email": email,
             "file_hash": file_hash,
             "title": title,
@@ -89,15 +102,16 @@ async def upload_file(
         }
     )
 
-    # Registra a transação no blockchain
     if blockchain.add_transaction(transaction):
         blockchain.mine_block()
         return {
             "message": "Produção registrada com sucesso.",
-            "id": production_id,
+            "id": new_production.id,  # Retornando o ID gerado
             "file": file.filename,
+            "file_url": f"/uploads/{file.filename}",  # URL do arquivo
+            "preview_url": preview_url,  # URL da imagem ou ícone
             "type": file_type,
             "timestamp": int(time.time())
         }
     else:
-        raise HTTPException(status_code=400, detail="Erro ao registrar produção.")
+        raise HTTPException(status_code=400, detail="Erro ao registrar produção na blockchain.")
